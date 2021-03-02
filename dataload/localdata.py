@@ -2,14 +2,17 @@ from torch.utils.data import Dataset
 from dataload import lang
 
 filenames = {'dev': 'data/pos_data/dev.dat',
-            'test': 'data/pos_data/test.dat',
-            'train': 'data/pos_data/train.dat'}
+             'test': 'data/pos_data/test.dat',
+             'train': 'data/pos_data/train.dat'}
+filenames2 = {'dev': 'data/korean_ner_data/dev.dat',
+              'test': 'data/korean_ner_data/test.dat',
+              'train': 'data/korean_ner_data/train.dat'}
 
 class CustomDataset(Dataset):
     def __init__(self, filename, engdict, posdict, device, strmode=False, charmode=False):
         #   데이터셋의 전처리를 해주는 부분
         data=[[],[]]
-        with open(filename, 'r') as fp:
+        with open(filename, 'r', encoding='UTF8') as fp:
             lines = fp.readlines()
             for i in range(len(lines)):
                 pair = [p.strip() for p in lines[i].split('\t')]
@@ -60,20 +63,49 @@ def load_eng_pos(device, strmode=False, charmode=False):
                 
     return datasets, engdict, posdict
 
-# def load_eng_pos():
-#     engdict = lang.Lang('eng')
-#     posdict = lang.Lang('pos')
-#     MAX_LENGTH = 0
+
+
+def load_kor_ner(device, strmode=False, charmode=False):
+    kordict = lang.Lang('kor')
+    nerdict = lang.Lang('ner')
+    MAX_LENGTH = 0
     
-#     for filename in filenames.values():
-#         with open(filename, 'r') as fp:
-#             lines = fp.readlines()
-#             for i in range(len(lines)):
-#                 pair = [p.strip() for p in lines[i].split('\t')]
+    for filename in filenames2.values():
+        with open(filename, 'r', encoding='UTF8') as fp:
+            lines = fp.readlines()
+            for i in range(len(lines)):
+                pair = [p.strip() for p in lines[i].split('\t')]
 #                 LENGTH = len(pair[0].split(' '))
 #                 if MAX_LENGTH < LENGTH:
 #                     MAX_LENGTH = LENGTH
-#                 engdict.addSentence(pair[0])
-#                 posdict.addSentence(pair[1])
+                kordict.addSentence(pair[0])
+                nerdict.addSentence(pair[1])
 
-#     return engdict, posdict, MAX_LENGTH
+    datasets = {'dev': CustomDataset(filenames2['dev'], kordict, nerdict, device, strmode, charmode),
+                'test': CustomDataset(filenames2['test'], kordict, nerdict, device, strmode, charmode),
+                'train': CustomDataset(filenames2['train'], kordict, nerdict, device, strmode, charmode)}            
+                
+    return datasets, kordict, nerdict
+
+
+# def tt():
+
+#     for filename in filenames2.values():
+#         with open(filename, 'r', encoding='UTF8') as fp:
+#             new_filename = filename.split('.')[0]+'.dat'
+#             print(new_filename)
+#             words = ''
+#             BIOs = ''
+#             lines = fp.readlines()
+#             for line in lines:
+#                 if line == '\n':
+#                     with open(new_filename, 'a', encoding='UTF8') as fp:
+#                         fp.write(words.strip()+'\t'+BIOs.strip()+'\n')
+# #                     print(words.strip())
+#                     words = ''
+#                     BIOs = ''
+#                     continue
+#                 pair = line.strip().split('\t')
+#                 word = pair[0].split('/')[0]
+#                 words = words + ' ' + word
+#                 BIOs = BIOs + ' ' + pair[3]
