@@ -96,6 +96,9 @@ class Lang:
         strindexes.extend(PAD_indexes)
         return torch.tensor(strindexes, dtype=torch.long, device=device).view(self.max_len_word,self.max_len_char)
 
+    
+    
+    
 # def tensorsFromPair(pair):
 #     input_tensor = engdict.tensorFromSentence(pair[0], MAX_LENGTH, device=device)
 #     target_tensor = posdict.tensorFromSentence(pair[1], MAX_LENGTH, device=device)
